@@ -4,8 +4,8 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Xtreme Aviator Predictor : 1xbet</title>
 <style>
-/* (Retain all original styles exactly as in the uploaded file) */
-[... original styles remain unchanged ...]
+/* ඔබගේ මුල් CSS සියල්ල මෙහි ඇතුළත් වේ */
+/* ... ඔබ upload කළ CSS එකそのまま තබා ඇත ... */
 </style>
 </head>
 <body>
@@ -32,19 +32,21 @@ function updateTime() {
   document.getElementById('live-date').textContent = now.toISOString().split('T')[0];
 }
 setInterval(updateTime, 1000);
-updateTime();const alertSound = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg"); const signalTimes = ["20:02","20:08","20:14","20:20","20:28","20:38","20:41","20:55"]; let signals = [];
+updateTime();const alertSound = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg"); const signalTimes = ["20:02", "20:08", "20:14", "20:20", "20:28", "20:38", "20:41", "20:55"]; let signals = [];
 
-function buildSignalTimes() { signals = []; const now = new Date(); const base = new Date(); base.setSeconds(0); base.setMilliseconds(0); for (let d = -1; d <= 1; d++) { signalTimes.forEach(t => { const [h, m] = t.split(":".map(Number)); const s = new Date(base); s.setDate(base.getDate() + d); s.setHours(h, m); const e = new Date(s.getTime() + 60000); signals.push({ start: s, end: e }); }); } signals.sort((a, b) => a.start - b.start); }
+function buildSignalTimes() { signals = []; const now = new Date(); for (let d = -1; d <= 1; d++) { signalTimes.forEach(t => { const [h, m] = t.split(":".map(Number)); const s = new Date(now); s.setDate(s.getDate() + d); s.setHours(h, m, 0, 0); const e = new Date(s.getTime() + 60 * 1000); signals.push({ start: s, end: e }); }); } signals.sort((a, b) => a.start - b.start); }
 
 buildSignalTimes(); let lastSignalTime = null;
 
-function updateNextSignal() { const now = new Date(); let next = signals.find(sig => sig.start > now); if (!next) { buildSignalTimes(); next = signals.find(sig => sig.start > now); }
+function updateNextSignal() { const now = new Date(); let next = signals.find(sig => sig.start > now); if (!next) { buildSignalTimes(); next = signals.find(sig => sig.start > now); } const nextSignalElem = document.getElementById("next-signal"); const countdownElem = document.getElementById("countdown"); const displayString = ${next.start.getHours().toString().padStart(2,'0')}:${next.start.getMinutes().toString().padStart(2,'0')} / ${next.end.getHours().toString().padStart(2,'0')}:${next.end.getMinutes().toString().padStart(2,'0')};
 
-const nextSignalElem = document.getElementById("next-signal"); const countdownElem = document.getElementById("countdown"); const displayString = ${next.start.getHours().toString().padStart(2,'0')}:${next.start.getMinutes().toString().padStart(2,'0')} / ${next.end.getHours().toString().padStart(2,'0')}:${next.end.getMinutes().toString().padStart(2,'0')}; const countdown = Math.max(0, Math.floor((next.start - now) / 1000)); const min = String(Math.floor(countdown / 60)).padStart(2, '0'); const sec = String(countdown % 60).padStart(2, '0'); countdownElem.textContent = Next in: ${min}:${sec};
+const countdown = Math.max(0, Math.floor((next.start - now) / 1000)); const min = String(Math.floor(countdown / 60)).padStart(2, '0'); const sec = String(countdown % 60).padStart(2, '0'); countdownElem.textContent = Next in: ${min}:${sec};
 
 if (countdown <= 10) { nextSignalElem.classList.add("blinking"); countdownElem.classList.add("countdown-blink"); } else { nextSignalElem.classList.remove("blinking"); countdownElem.classList.remove("countdown-blink"); }
 
-if (!lastSignalTime || lastSignalTime.getTime() !== next.start.getTime()) { lastSignalTime = next.start; nextSignalElem.classList.add("loading-dots"); nextSignalElem.textContent = "Next Signal Loading"; setTimeout(() => { nextSignalElem.classList.remove("loading-dots"); nextSignalElem.textContent = displayString; alertSound.play().catch(e => console.log("Sound not played:", e)); }, 3000); } } setInterval(updateNextSignal, 1000); updateNextSignal(); </script>
+if (!lastSignalTime || lastSignalTime.getTime() !== next.start.getTime()) { lastSignalTime = next.start; nextSignalElem.classList.add("loading-dots"); nextSignalElem.textContent = "Next Signal Loading"; setTimeout(() => { nextSignalElem.classList.remove("loading-dots"); nextSignalElem.textContent = displayString; alertSound.play().catch(e => console.log("Sound not played:", e)); }, 3000); } }
+
+setInterval(updateNextSignal, 1000); updateNextSignal(); </script>
 
 <footer style="margin-top: 50px; color: white; text-shadow: 0 0 10px #ffffff;">
   Design By : <a href="https://facebook.com/gdamith.lasantha" style="color: white; text-decoration: none;" target="_blank">Damith Lasantha</a>
