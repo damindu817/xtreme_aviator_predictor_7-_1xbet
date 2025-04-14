@@ -1,0 +1,205 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Aviator 10x Signal Tracker</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(145deg, #1b1b2f, #162447);
+      color: #ffffff;
+      text-align: center;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+
+    h1 {
+      font-size: 2.6em;
+      color: #ffffff;
+      background-color: rgba(255, 76, 41, 0.1);
+      border: 1px solid rgba(255, 76, 41, 0.4);
+      border-left: 6px solid #ff4c29;
+      padding: 14px 20px;
+      border-radius: 8px;
+      display: inline-block;
+      box-shadow: 0 2px 8px rgba(255, 76, 41, 0.25);
+      margin-bottom: 30px;
+    }
+
+    .signal {
+      font-size: 1.8em;
+      color: #ffcc00;
+      background-color: rgba(255, 204, 0, 0.08);
+      border: 1px solid rgba(255, 204, 0, 0.3);
+      border-left: 6px solid #ffcc00;
+      padding: 12px 18px;
+      border-radius: 8px;
+      display: inline-block;
+      box-shadow: 0 2px 6px rgba(255, 204, 0, 0.2);
+      margin-bottom: 15px;
+    }
+
+    .signal.loading-text::after {
+      content: ' ';
+      display: inline-block;
+      animation: dots 1.2s steps(3, end) infinite;
+      width: 1.5em;
+      text-align: left;
+    }
+
+    @keyframes dots {
+      0% { content: ''; }
+      33% { content: '.'; }
+      66% { content: '..'; }
+      100% { content: '...'; }
+    }
+
+    .eta {
+      color: #ffffff;
+      margin-top: 10px;
+      font-size: 1.2em;
+      text-shadow: 0 0 10px #ffffff;
+    }
+
+    .log, .input-area {
+      background: rgba(34, 40, 49, 0.9);
+      padding: 25px;
+      border-radius: 16px;
+      max-width: 640px;
+      margin: 25px auto;
+      box-shadow: 0 0 20px rgba(255, 76, 41, 0.3), 0 0 40px rgba(255, 76, 41, 0.15);
+      backdrop-filter: blur(8px);
+      transition: all 0.3s ease-in-out;
+    }
+
+    input, button {
+      padding: 12px;
+      margin: 8px;
+      font-size: 1em;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+      box-shadow: inset 0 0 8px rgba(0,0,0,0.5);
+    }
+
+    input {
+      background: #393e46;
+      color: #ffcc00;
+      width: 100px;
+      text-align: center;
+    }
+
+    button {
+      background: #ff4c29;
+      color: #ffffff;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.3s;
+      box-shadow: 0 0 12px #ff4c29, 0 0 24px #ff4c29;
+    }
+
+    button:hover {
+      background: #ff652f;
+      box-shadow: 0 0 16px #ff652f, 0 0 32px #ff652f;
+    }
+
+    footer {
+      margin-top: 40px;
+      font-size: 0.95em;
+      color: #cccccc;
+    }
+  </style>
+</head>
+<body>
+  <h1>Aviator 10x Signal Tracker</h1>
+  <div class="signal loading-text" id="signal">Waiting for 10x signal</div>
+  <div class="eta" id="eta"></div>
+
+  <div class="input-area">
+    <h3>Enter Last 5 Odds to Track 10x Signal</h3>
+    <input type="number" step="0.01" id="odd1" placeholder="Odd 1">
+    <input type="number" step="0.01" id="odd2" placeholder="Odd 2">
+    <input type="number" step="0.01" id="odd3" placeholder="Odd 3">
+    <input type="number" step="0.01" id="odd4" placeholder="Odd 4">
+    <input type="number" step="0.01" id="odd5" placeholder="Odd 5">
+    <br>
+    <button onclick="update()">Check Signal</button>
+    <button onclick="clearFields()">Clear</button>
+  </div>
+
+  <div class="log" id="log"></div>
+
+  <footer>Powered by XTREME Predictor</footer>
+
+  <script>
+    function detectSignal(history) {
+      const superHighOdds = history.filter(o => o >= 10);
+      if (superHighOdds.length >= 1) {
+        return 'Super Signal! 10x may hit soon!';
+      } else {
+        return 'No 10x pattern detected.';
+      }
+    }
+
+    function estimateNextTime(history) {
+      const positions = [];
+      history.forEach((val, index) => {
+        if (val >= 10) positions.push(index);
+      });
+
+      if (positions.length >= 1) {
+        const etaMinutes = 3;
+        const now = new Date();
+        now.setMinutes(now.getMinutes() + etaMinutes);
+        return 'Expected time for 10x: ' + now.toLocaleTimeString();
+      } else {
+        return '';
+      }
+    }
+
+    function update() {
+      const odds = [
+        parseFloat(document.getElementById('odd1').value),
+        parseFloat(document.getElementById('odd2').value),
+        parseFloat(document.getElementById('odd3').value),
+        parseFloat(document.getElementById('odd4').value),
+        parseFloat(document.getElementById('odd5').value)
+      ];
+
+      const signalDiv = document.getElementById('signal');
+
+      if (odds.some(isNaN)) {
+        signalDiv.textContent = 'Please enter all 5 odds';
+        signalDiv.classList.remove('loading-text');
+        document.getElementById('eta').textContent = '';
+        return;
+      }
+
+      const signal = detectSignal(odds);
+      signalDiv.textContent = signal;
+      signalDiv.classList.remove('loading-text');
+      document.getElementById('log').innerHTML = '<strong>Entered Odds:</strong> ' + odds.join(', ');
+
+      if (signal.includes('10x')) {
+        const eta = estimateNextTime(odds);
+        document.getElementById('eta').textContent = eta;
+      } else {
+        document.getElementById('eta').textContent = '';
+      }
+    }
+
+    function clearFields() {
+      for (let i = 1; i <= 5; i++) {
+        document.getElementById('odd' + i).value = '';
+      }
+      const signalDiv = document.getElementById('signal');
+      signalDiv.textContent = 'Waiting for 10x signal';
+      signalDiv.classList.add('loading-text');
+      document.getElementById('eta').textContent = '';
+      document.getElementById('log').innerHTML = '';
+    }
+  </script>
+</body>
+</html>
